@@ -18,7 +18,6 @@ app.post('/todos', (req, res) => {
   }, e => {
     res.status(400).send(e);
   });
-  console.log(req.body);
 });
 
 app.get('/todos', (req, res) => {
