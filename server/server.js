@@ -1,4 +1,4 @@
-require('./server/config/config');
+require('./config/config');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -21,6 +21,18 @@ app.post('/todos', (req, res) => {
   todo.save().then( doc => {
     res.send(doc);
   }, e => {
+    res.status(400).send(e);
+  });
+});
+// POST /users
+app.post('/users', (req, res) => {
+  var userObj = _.pick(req.body, ['email', 'password']);
+  var user = new User(userObj);//use pick
+  user.save().then(() => {
+      return user.generateAuthToken();
+  }).then(token => {
+    res.header('x-auth', token).send(user);
+  }).catch(e => {
     res.status(400).send(e);
   });
 });
@@ -65,13 +77,9 @@ app.delete('/todos/:id', (req, res) => {
   }).catch( e => {
     res.status(400).send();
   });
-  // success
-    //if no doc, send id
-    //if doc send doc with 200
-  // error 400 empty body
 });
 
-
+// PATCH /todos/:id
 app.patch('/todos/:id', (req, res) => {
   var id = req.params.id;
   //subset of things user passed to us
@@ -101,6 +109,10 @@ app.patch('/todos/:id', (req, res) => {
     res.status(400).send();
   });
 });
+
+// app.get('/users/ne', (req, res) => {
+//   var token = req.header();
+// });
 
 app.listen(process.env.PORT, () => {
   console.log(`Started on port ${process.env.PORT}`);
